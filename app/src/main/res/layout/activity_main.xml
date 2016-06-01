@@ -7,7 +7,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="net.macdidi.mptooltest.MainActivity">
+    tools:context="net.macdidi.mptooltest.MainActivity"
+    android:longClickable="false">
 
 
     <TextView
@@ -23,7 +24,9 @@
         android:layout_below="@+id/textView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/button" />
+        android:layout_above="@+id/button"
+        android:layout_alignRight="@+id/button"
+        android:layout_alignEnd="@+id/button" />
 
 
     <Button
@@ -36,15 +39,36 @@
         android:layout_alignParentStart="true"
         android:onClick="startTest" />
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Result"
-        android:id="@+id/result"
-        android:textSize="40dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/listView"
-        android:layout_alignEnd="@+id/listView" />
+        android:text="New Text"
+        android:id="@+id/timetest"
+        android:textSize="32dp"
+        android:layout_alignBaseline="@+id/button4"
+        android:layout_alignBottom="@+id/button4"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BT TEST"
+        android:id="@+id/bttest"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="clickBT" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bluetooth"
+        android:id="@+id/button4"
+        android:onClick="bluetooth"
+        android:layout_alignBottom="@+id/button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 
 </RelativeLayout>
