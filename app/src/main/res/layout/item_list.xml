@@ -8,19 +8,22 @@
     <TextView
         android:layout_width="80dp"
         android:layout_height="match_parent"
-        android:id="@+id/textIndex" />
+        android:id="@+id/textIndex"
+        android:text="123"/>
 
 
     <TextView
         android:layout_width="160dp"
         android:layout_height="match_parent"
-        android:id="@+id/textDesc" />
+        android:id="@+id/textDesc"
+        android:text="method" />
 
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/textResult" />
+        android:id="@+id/textResult"
+        android:text="pass or fail"/>
 
 
 </LinearLayout>

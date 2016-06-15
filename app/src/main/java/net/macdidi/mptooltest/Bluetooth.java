@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -19,14 +18,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import net.macdidi.mptooltest.R;
-
 import java.util.ArrayList;
 import java.util.Set;
 
 public class Bluetooth extends Activity {
     public Button searchBtn;//搜索藍牙設備
-    public Button exitBtn;//退出應用
     public Button discoverBtn;//設置可被發現
     public ToggleButton openBtn;//開關藍牙設備
     public Button serverbtn;
@@ -42,7 +38,6 @@ public class Bluetooth extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
         searchBtn = (Button) findViewById(R.id.btnSearch);
-        exitBtn = (Button) findViewById(R.id.btnExit);
         discoverBtn = (Button) findViewById(R.id.btnDis);
         openBtn = (ToggleButton) findViewById(R.id.tbtnSwitch);
         serverbtn = (Button) findViewById(R.id.btnserver);
@@ -83,15 +78,7 @@ public class Bluetooth extends Activity {
                 bluetoothAdapter.startDiscovery();
             }
         });
-        //退出應用
-        exitBtn.setOnClickListener(new OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                Bluetooth.this.finish();
-            }
-        });
         //設置藍牙設備可發現
         discoverBtn.setOnClickListener(new OnClickListener() {
 
@@ -130,26 +117,6 @@ public class Bluetooth extends Activity {
         listView.setOnItemClickListener(new ItemClickListener());
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        // If BT is not on, request that it be enabled.
-        if (bluetoothAdapter == null) {
-            Toast.makeText(context, "藍牙設備不可用", 120).show();
-        }
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableIntent = new Intent(
-                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, 3);
-        }
-
-    }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
 
     private final BroadcastReceiver searchReceiver = new BroadcastReceiver() {
 

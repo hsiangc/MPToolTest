@@ -1,25 +1,32 @@
 package net.macdidi.mptooltest;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
 
     private ListView TestList;
-    private TextView Result;
     private TextView timeTest;
+    private TextView testResult;
     private List<MpItem> items;
     private MpAdapter itemAdapter;
 
@@ -30,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
 
     public BluetoothAdapter mBluetoothAdapter;
     public int REQUEST_ENABLE_BT = 1;
+    public ArrayList<String> list = new ArrayList<String>();
+    public ArrayAdapter<String> adapter;
+    Set<BluetoothDevice> bondDevices;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +47,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         TestList = (ListView) findViewById(R.id.listView);
-        Result = (TextView) findViewById(R.id.result);
         timeTest = (TextView) findViewById(R.id.timetest);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        testResult = (TextView) findViewById(R.id.result);
 
         items = new ArrayList<MpItem>();
         items.add(new MpItem(1, "method1", "-"));
@@ -56,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
         items.add(new MpItem(12, "method12", "-"));
         items.add(new MpItem(13, "method13", "-"));
 
-
-        TestList.setAdapter(new MpAdapter(this, R.layout.item_list, items));
+        itemAdapter = new MpAdapter(this, R.layout.item_list, items);
+        TestList.setAdapter(itemAdapter);
     }
 
     public void startTest(View view) {
@@ -113,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     public void clickBT(View view) {
         if (mBluetoothAdapter != null) {
             // Device does not support Bluetooth
-            Result.setText("HAVE BT");
+            testResult.setText("HAVE BT");
             //退出程序
             //test_bluetooth.this.finish();
         }
@@ -122,16 +132,75 @@ public class MainActivity extends AppCompatActivity {
             //打開藍牙
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            timeTest.setText("QAQ");
+            timeTest.setText("QAQ");}
 
-        }
+        if (mBluetoothAdapter.isEnabled())
 
-        if(mBluetoothAdapter.isEnabled()) {
+        {
 
-            timeTest.setText("OPEN!");
+            //注冊廣播接收信號
+            IntentFilter intent = new IntentFilter();
+            intent.addAction(BluetoothDevice.ACTION_FOUND);
+            // 用BroadcastReceiver來取得搜索結果
+
+            registerReceiver(searchReceiver, intent);
+
+            Log.d("debug", "TEST1");
+
+//            if (mBluetoothAdapter.isDiscovering())
+//            {
+//                mBluetoothAdapter.cancelDiscovery();
+//            }
+
+            bondDevices = mBluetoothAdapter.getBondedDevices();
+            Log.d("debug", "TEST2");
+
+
+            for (BluetoothDevice device : bondDevices) {
+                Log.d("debug", "TEST3");
+
+                if (device.getAddress() == "F4-5C-89-A4-2C-50") {
+                    Log.d("debug", "TEST4");
+
+                    testResult.setText("True!");
+                }
+                Log.d("debug", "TEST5");
+
+//                String str = "	已配對完成	" + device.getName() + "	"
+//                        + device.getAddress();
+//                list.add(str);
+//                adapter.notifyDataSetChanged();
+            }
+            Log.d("debug", "TEST6");
+
+            mBluetoothAdapter.startDiscovery();
+            Log.d("debug", "TEST7");
         }
 
     }
+
+    private final BroadcastReceiver searchReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // TODO Auto-generated method stub
+            String action = intent.getAction();
+            BluetoothDevice device = null;
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (device.getBondState() == BluetoothDevice.BOND_NONE) {
+                    Toast.makeText(context, device.getName() + "", 120).show();
+                    String str = "	未配對完成	" + device.getName() + "	"
+                            + device.getAddress();
+                    if (list.indexOf(str) == -1)// 防止重复添加
+                        list.add(str);
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+        }
+    };
+
 
     //跳到網路上的藍芽範本
     public void bluetooth(View view){

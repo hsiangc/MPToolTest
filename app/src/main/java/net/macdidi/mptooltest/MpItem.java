@@ -8,7 +8,7 @@ public class MpItem {
     public MpItem() {
         mIndex = 0;
         mDesc = "Test Description";
-        mResult = "---";
+        mResult = "-";
     }
 
     public MpItem(int mIndex, String mDesc, String mResult) {
