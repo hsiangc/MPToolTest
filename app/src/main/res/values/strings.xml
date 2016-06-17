@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MPToolTest</string>
+    <string name="bt_address">F4:5C:89:A4:2C:50</string>
 
 </resources>

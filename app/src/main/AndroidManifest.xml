@@ -18,8 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Bluetooth"></activity>
-        <activity android:name=".bluetoothsub"></activity>
     </application>
 
 </manifest>

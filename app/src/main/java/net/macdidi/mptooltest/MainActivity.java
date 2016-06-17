@@ -12,20 +12,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
 
     private ListView TestList;
-    private TextView timeTest;
     private TextView testResult;
     private List<MpItem> items;
     private MpAdapter itemAdapter;
@@ -37,9 +35,9 @@ public class MainActivity extends AppCompatActivity {
 
     public BluetoothAdapter mBluetoothAdapter;
     public int REQUEST_ENABLE_BT = 1;
-    public ArrayList<String> list = new ArrayList<String>();
-    public ArrayAdapter<String> adapter;
-    Set<BluetoothDevice> bondDevices;
+
+    private Timer timer = new Timer();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +45,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         TestList = (ListView) findViewById(R.id.listView);
-        timeTest = (TextView) findViewById(R.id.timetest);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         testResult = (TextView) findViewById(R.id.result);
+        IntentFilter intent = new IntentFilter();
+        intent.addAction(BluetoothDevice.ACTION_FOUND);// 用BroadcastReceiver來取得搜索結果
+        intent.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED); //每當掃描模式變化的時候，應用程序可以为通過ACTION_SCAN_MODE_CHANGED值來監聽全局的消息通知。比如，當設備停止被搜尋以後，該消息可以被系統通知給應用程序。
+        intent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED); //每當藍牙模塊被打開或者關閉，應用程序可以为通過ACTION_STATE_CHANGED值來監聽全局的消息通知。
+        registerReceiver(searchReceiver, intent);
+
 
         items = new ArrayList<MpItem>();
         items.add(new MpItem(1, "method1", "-"));
@@ -74,138 +77,95 @@ public class MainActivity extends AppCompatActivity {
 
         //int numItem = items.size();
 
-        boolean bCheckRTC;
-        bCheckRTC = checkRTC();
-        Log.d("macbear_debug", "RTC " + bCheckRTC);
-
-
-//         for(int i=1;i < 13; i++)
-//         {
-//             if(items.get(i).getPass()=="pass")
-//                resultpass = true;
-//             else
-//                 resultpass = false;
-//         }
-//
-//         if(resultpass==true)
-//             Result.setText("Pass");
+        checkRTC();
+        checkBT();
 
 
     }
 
-    public boolean checkRTC(){
+    public void checkRTC() {
         mFirstTime.setToNow();
         // mDoneRTC = false;
-        mHandler.postDelayed(TimerCompare, 2*1000);
-        Log.d("test", "RTC01 " + mFirstTime.second );
-        if(result==true)
-            return true;
-        else
-            return false;
+        mHandler.postDelayed(TimerCompare, 2 * 1000);
 
     }
+
     public Runnable TimerCompare = new Runnable() {
         @Override
         public void run() {
             mSecondTime.setToNow();
-            Log.d("test", "RTC02 " + mSecondTime.second );
-            if(mSecondTime.second == mFirstTime.second+2) {
-                result = true;
+            Log.d("test", "RTC02 " + mSecondTime.second);
+            if (mSecondTime.second == mFirstTime.second + 2) {
                 MpItem item = itemAdapter.getItem(2);
                 item.mResult = "Pass";
                 itemAdapter.setData(2, item);
             }
-            else
-                result = false;
         }
     };
 
-    public void clickBT(View view) {
+    public void checkBT() {
+        result = false;
         if (mBluetoothAdapter != null) {
             // Device does not support Bluetooth
-            testResult.setText("HAVE BT");
+            testResult.setText("Have Bluetooth");
             //退出程序
             //test_bluetooth.this.finish();
         }
 
-        if (!mBluetoothAdapter.isEnabled()) {
-            //打開藍牙
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            timeTest.setText("QAQ");}
+        do {
+            mBluetoothAdapter.enable();
+        } while(!mBluetoothAdapter.isEnabled());
 
-        if (mBluetoothAdapter.isEnabled())
-
-        {
-
-            //注冊廣播接收信號
-            IntentFilter intent = new IntentFilter();
-            intent.addAction(BluetoothDevice.ACTION_FOUND);
-            // 用BroadcastReceiver來取得搜索結果
-
-            registerReceiver(searchReceiver, intent);
-
-            Log.d("debug", "TEST1");
-
-//            if (mBluetoothAdapter.isDiscovering())
-//            {
-//                mBluetoothAdapter.cancelDiscovery();
-//            }
-
-            bondDevices = mBluetoothAdapter.getBondedDevices();
-            Log.d("debug", "TEST2");
-
-
-            for (BluetoothDevice device : bondDevices) {
-                Log.d("debug", "TEST3");
-
-                if (device.getAddress() == "F4-5C-89-A4-2C-50") {
-                    Log.d("debug", "TEST4");
-
-                    testResult.setText("True!");
-                }
-                Log.d("debug", "TEST5");
-
-//                String str = "	已配對完成	" + device.getName() + "	"
-//                        + device.getAddress();
-//                list.add(str);
-//                adapter.notifyDataSetChanged();
-            }
-            Log.d("debug", "TEST6");
-
-            mBluetoothAdapter.startDiscovery();
-            Log.d("debug", "TEST7");
-        }
-
+        mBluetoothAdapter.startDiscovery();
+        timer.schedule(new DateTask(), 20000);
     }
 
-    private final BroadcastReceiver searchReceiver = new BroadcastReceiver() {
-
+    public class DateTask extends TimerTask {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            // TODO Auto-generated method stub
-            String action = intent.getAction();
-            BluetoothDevice device = null;
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device.getBondState() == BluetoothDevice.BOND_NONE) {
-                    Toast.makeText(context, device.getName() + "", 120).show();
-                    String str = "	未配對完成	" + device.getName() + "	"
-                            + device.getAddress();
-                    if (list.indexOf(str) == -1)// 防止重复添加
-                        list.add(str);
-                }
-                adapter.notifyDataSetChanged();
+        public void run() {
+            if(result==false) {
+                Log.d("test:", "NoBluetooth");
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MpItem item = itemAdapter.getItem(3);
+                        item.mResult = "Failed";
+                        itemAdapter.setData(3, item);
+                    }
+                });
+
             }
-
         }
-    };
-
-
-    //跳到網路上的藍芽範本
-    public void bluetooth(View view){
-
-        startActivity(new Intent(this, Bluetooth.class));
     }
-}
+
+
+        private final BroadcastReceiver searchReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // TODO Auto-generated method stub
+                String action = intent.getAction();
+                BluetoothDevice device = null;
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    if (device.getBondState() == BluetoothDevice.BOND_NONE) {
+                        Log.d("test:", "Bluetooth");
+                        if (device.getAddress().equals("F4:5C:89:A4:2C:50")) {
+                            result = true;
+                            Log.d("test:", "BT match");
+                            MpItem item = itemAdapter.getItem(3);
+                            item.mResult = "Pass";
+                            itemAdapter.setData(3, item);
+                        }
+                    }
+                }
+
+            }
+        };
+
+        //跳到網路上的藍芽範本
+        public void bluetooth(View view) {
+        }
+    }
 
