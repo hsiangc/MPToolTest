@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         TestList = (ListView) findViewById(R.id.listView);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        testResult = (TextView) findViewById(R.id.result);
+        testResult = (TextView) findViewById(R.id.title);
         IntentFilter intent = new IntentFilter();
         intent.addAction(BluetoothDevice.ACTION_FOUND);// 用BroadcastReceiver來取得搜索結果
         intent.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED); //每當掃描模式變化的時候，應用程序可以为通過ACTION_SCAN_MODE_CHANGED值來監聽全局的消息通知。比如，當設備停止被搜尋以後，該消息可以被系統通知給應用程序。
@@ -55,19 +55,19 @@ public class MainActivity extends AppCompatActivity {
 
 
         items = new ArrayList<MpItem>();
-        items.add(new MpItem(1, "method1", "-"));
-        items.add(new MpItem(2, "method2", "-"));
-        items.add(new MpItem(3, "method3", "-"));
-        items.add(new MpItem(4, "method4", "-"));
-        items.add(new MpItem(5, "method5", "-"));
-        items.add(new MpItem(6, "method6", "-"));
-        items.add(new MpItem(7, "method7", "-"));
-        items.add(new MpItem(8, "method8", "-"));
-        items.add(new MpItem(9, "method9", "-"));
-        items.add(new MpItem(10, "method10", "-"));
-        items.add(new MpItem(11, "method11", "-"));
-        items.add(new MpItem(12, "method12", "-"));
-        items.add(new MpItem(13, "method13", "-"));
+        items.add(new MpItem(1, "Wifi", "-"));
+        items.add(new MpItem(2, "Ethernet", "-"));
+        items.add(new MpItem(3, "3G/4G LTE", "-"));
+        items.add(new MpItem(4, "LoRa #1", "-"));
+        items.add(new MpItem(5, "LoRa #2", "-"));
+        items.add(new MpItem(6, "RTC", "-"));
+        items.add(new MpItem(7, "BT/BLE", "-"));
+        items.add(new MpItem(8, "TF card", "-"));
+        items.add(new MpItem(9, "GPS", "-"));
+        items.add(new MpItem(10, "Buzzer", "-"));
+        items.add(new MpItem(11, "HDMI", "Visual"));
+        items.add(new MpItem(12, "USB", "Visual"));
+        items.add(new MpItem(13, "LED", "Visual"));
 
         itemAdapter = new MpAdapter(this, R.layout.item_list, items);
         TestList.setAdapter(itemAdapter);
@@ -75,13 +75,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void startTest(View view) {
 
-        //int numItem = items.size();
-
         checkRTC();
         checkBT();
+    }
 
+    public void resetTest(View view){
 
     }
+
 
     public void checkRTC() {
         mFirstTime.setToNow();
@@ -96,20 +97,20 @@ public class MainActivity extends AppCompatActivity {
             mSecondTime.setToNow();
             Log.d("test", "RTC02 " + mSecondTime.second);
             if (mSecondTime.second == mFirstTime.second + 2) {
-                MpItem item = itemAdapter.getItem(2);
+                MpItem item = itemAdapter.getItem(5);
                 item.mResult = "Pass";
-                itemAdapter.setData(2, item);
+                itemAdapter.setData(5, item);
             }
         }
     };
 
     public void checkBT() {
         result = false;
-        if (mBluetoothAdapter != null) {
+        if (mBluetoothAdapter == null) {
             // Device does not support Bluetooth
-            testResult.setText("Have Bluetooth");
-            //退出程序
-            //test_bluetooth.this.finish();
+            MpItem item = itemAdapter.getItem(6);
+            item.mResult = "Failed";
+            itemAdapter.setData(6, item);
         }
 
         do {
@@ -129,9 +130,9 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MpItem item = itemAdapter.getItem(3);
+                        MpItem item = itemAdapter.getItem(6);
                         item.mResult = "Failed";
-                        itemAdapter.setData(3, item);
+                        itemAdapter.setData(6, item);
                     }
                 });
 
@@ -154,9 +155,9 @@ public class MainActivity extends AppCompatActivity {
                         if (device.getAddress().equals("F4:5C:89:A4:2C:50")) {
                             result = true;
                             Log.d("test:", "BT match");
-                            MpItem item = itemAdapter.getItem(3);
+                            MpItem item = itemAdapter.getItem(6);
                             item.mResult = "Pass";
-                            itemAdapter.setData(3, item);
+                            itemAdapter.setData(6, item);
                         }
                     }
                 }
@@ -164,8 +165,5 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        //跳到網路上的藍芽範本
-        public void bluetooth(View view) {
-        }
     }
 
