@@ -165,5 +165,11 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+    public void startSensor(View view)
+    {
+
+        startActivity(new Intent(this, SensorActivity.class));
     }
+
+}
 

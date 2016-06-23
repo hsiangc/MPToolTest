@@ -59,5 +59,15 @@
         android:layout_above="@+id/text"
         android:layout_below="@+id/title" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sensor"
+        android:id="@+id/button2"
+        android:layout_alignTop="@+id/title"
+        android:layout_alignRight="@+id/listView"
+        android:layout_alignEnd="@+id/listView"
+        android:onClick="startSensor" />
+
 
 </RelativeLayout>
